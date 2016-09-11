@@ -1,13 +1,21 @@
 <!doctype html>
-<html>
+<html lang="en">
+
 	<head>
 		<meta charset="utf-8">
+
+		<title>Getting ownCloud insights - loggung (and debugging) all platforms</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
-
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/theme/moon.css" id="theme">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -20,31 +28,299 @@
 			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
 		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
 	</head>
+
 	<body>
+
 		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>
+					<h1>Getting ownCloud Insights</h1>
+					<h3>Logging (and debugging) all platforms</h3>
+				</section>
+
+				<section>
+					<h2>Michael Stingl</h2>
+					<p>
+						Customer Support and Branding Services
+					</p>
+					<p>
+						GitHub: <a href="https://github.com/michaelstingl">@michaelstingl</a><br>
+						Twitter: <a href="https://twitter.com/michaelstingl">@michaelstingl</a><br>
+						elsewhere: …
+					</p>
+				</section>
+
+				<section>
+					<h2>Which logs could help</h2>
+					<ul>
+						<li>owncloud.log</li>
+						<li>webserver access/error log</li>
+						<li>analyzing logs</li>
+						<li>desktop client logs</li>
+						<li>logs from Android *-debug.apk</li>
+						<li>Android Studio debugger</li>
+						<li>iOS: crash logs</li>
+						<li>iOS: Xcode device console</li>
+						<li>Capturing HTTP(S) requests with mitmproxy</li>
+						<li>browser debugging</li>
+						<li>Smashbox</li>
+						<li>Xdebug and PhpStorm</li>
+					</ul>
+				</section>
+
+				<!-- owncloud.log -->
+				<section>
+					<h2>owncloud.log</h2>
+					<ul>
+						<li>default: owncloud/data/owncloud.log</li>
+						<li>download from Admin page</li>
+						<li>configure log levels</li>
+					</ul>
+					<p>
+						<img data-src="images/web-admin-log.png">
+					</p>
+				</section>
+
+				<section>
+					<h2>Logging Configuration</h2>
+				    <pre><code data-trim data-noescape>
+"log_type" => "owncloud",
+"logfile" => "owncloud.log",
+"loglevel" => "3",
+"logdateformat" => "F d, Y H:i:s",
+				    </code></pre>
+				    <p>syslog</p>
+				    <pre><code data-trim data-noescape>
+"log_type" => "syslog",
+"logfile" => "",
+"loglevel" => "3",
+				    </code></pre>
+				</section>
+
+				<section>
+					<h2>Conditional Logging Level Increase</h2>
+
+				    <pre><code data-trim data-noescape>
+'log.condition' => [
+       'shared_secret' => '57b58edb6637fe3059b3595cf9c41b9',
+       'users' => ['sample-user'],
+       'apps' => ['files'],
+],
+				    </code></pre>
+				</section>
+
+				<!-- webserver logs -->
+				<section>
+					<h2>Webserver Logs</h2>
+
+					<p>ownCloud talks WebDAV</p>
+
+				    <pre><code data-trim data-noescape>
+172.20.10.2 - admin [11/Sep/2016:09:28:24 +0000] "GET /remote.php/webdav/Hacker-Songs/mark_wheadon-just_one_more_hack.mp3 HTTP/1.1" 200 2796250 "-" "Mozilla/5.0 (Macintosh) mirall/2.2.3 (build 3601)"
+172.20.10.2 - admin [11/Sep/2016:09:28:24 +0000] "GET /remote.php/webdav/Hacker-Songs/mc_plus_plus-alice_and_bob.mp3 HTTP/1.1" 200 3264837 "-" "Mozilla/5.0 (Macintosh) mirall/2.2.3 (build 3601)"
+172.20.10.2 - admin [11/Sep/2016:09:28:24 +0000] "GET /remote.php/webdav/Hacker-Songs/model_view_controller_song.mp3 HTTP/1.1" 200 6941701 "-" "Mozilla/5.0 (Macintosh) mirall/2.2.3 (build 3601)"
+				    </code></pre>
+				</section>
+
+				<!-- analyzing logs -->
+				<section>
+					<h2>Analyzing Logs</h2>
+					<p>ELK Stack (Elasticsearch, Logstash, and Kibana)</p>
+					<p>
+						<img data-src="https://www.elastic.co/assets/blt5f53c240551937cc/Screen%20Shot%202016-08-29%20at%204.00.48%20PM.png">
+					</p>
+				</section>
+
+				<!-- desktop client logs -->
+				<section>
+					<h2>Desktop Client Logs</h2>
+					<p>
+						Press "F12"
+					</p>
+					<p>
+						<img data-src="images/desktop-f12-log.png">
+					</p>
+				</section>
+
+				<section>
+					<h2>Desktop Client Log Options</h2>
+					<p>The ownCloud client enables you to save log files directly to a predefined file or directory.</p>
+				    <pre><code data-trim data-noescape>
+--logfile &lt;file&gt;
+				    </code></pre>
+				    <pre><code data-trim data-noescape>
+--logdir &lt;dir&gt;
+--logexpire &lt;hours&gt;
+
+owncloud --logdir /tmp/owncloud_logs --logexpire 48 `
+				    </code></pre>
+				</section>
+
+				<!-- logs from Android *-debug.apk -->
+				<section>
+					<h2>Android *-debug.apk (ownBrander)</h2>
+					<p>
+						Every ownBrander build comes with a identical build with debugging enabled.
+					</p>
+					<p>
+						<img data-src="images/android-debug-apk.png">
+					</p>
+				</section>
+
+				<!-- Android Studio debugger -->
+				<section>
+					<h2>Android Studio Debugger</h2>
+					<ol>
+						<li>Application needs to be "debuggable"</li>
+						<li>USB debugging enabled on the dice</li>
+						<li>Windos: install a USB driver…</li>
+					</ol>
+				</section>
+
+				<!-- iOS: crash logs -->
+				<section>
+					<h2>iOS: crash logs</h2>
+					<ul>
+						<li>Xcode's Window menu &gt; Devices, and select the iOS device on the side bar</li>
+						<li>Synced with iTunes</li>
+						<li>Xcode through the App Store (user can disable)</li>
+					</ul>
+				</section>
+
+				<!-- iOS: Xcode device console -->
+				<section>
+					<h2>iOS: Xcode device console</h2>
+					<p>
+						Xcode's Window menu &gt; Devices, and select the iOS device on the side bar
+					</p>
+					<p>
+						<img data-src="https://developer.apple.com/library/ios/technotes/tn2319/Art/tn2319_logd.png">
+					</p>
+				</section>
+
+				<!-- Capturing HTTP(S) requests with mitmproxy -->
+				<section>
+					<h2>Capturing HTTP(S) requests with mitmproxy</h2>
+					<p>
+						Flow list: save with "w", load with "L"
+					</p>
+					<p>
+						<img data-src="http://docs.mitmproxy.org/en/latest/_images/mitmproxy.png">
+					</p>
+				</section>
+
+				<section>
+					<h2>Capturing HTTP(S) requests with mitmproxy</h2>
+					<p>
+						Flow view
+					</p>
+					<p>
+						<img data-src="http://docs.mitmproxy.org/en/latest/_images/mitmproxy-flowview.png">
+					</p>
+				</section>
+
+				<!-- browser debugging -->
+				<section>
+					<h2>Browser debugging</h2>
+					<ul>
+						<li>Firefox Developer Tools</li>
+						<li>Chrome, Safari: Web Inspector</li>
+						<li>Mobile: Connect desktop Safari with mobile Safari</li>
+					</ul>
+				</section>
+
+				<!-- Smashbox -->
+				<section>
+					<h2>Smashbox</h2>
+					<p>
+						Framework for end-to-end testing the core storage functionality of owncloud-based service installation.
+					</p>
+					<p>
+						<a href="https://github.com/cernbox/smashbox" target="_blank">https://github.com/cernbox/smashbox</a>.
+					</p>
+					<h3>Cons</h3>
+					<ul>
+						<li>Not easy to install</li>
+						<li>Many data</li>
+					</ul>
+				</section>
+
+				<!-- Xdebug and PhpStorm IDE -->
+
+				<section>
+					<h2>Xdebug - Debugger and Profiler Tool for PHP</h2>
+					<p>
+						PHP extension which provides debugging and profiling capabilities.
+					</p>
+					<p>
+						<a href="http://www.xdebug.org/" target="_blank">http://www.xdebug.org/</a>.
+					</p>
+				</section>
+
+				<section>
+					<h2>PhpStorm IDE</h2>
+					<p>
+						Setting the magic cookie to get Xdebug information to PhpStorm:
+					</p>
+					<p>
+						<a href="https://www.jetbrains.com/phpstorm/marklets/" target="_blank">https://www.jetbrains.com/phpstorm/marklets/</a>.
+					</p>
+					<p>
+						<img data-src="images/phpstorm-marklets.png">
+					</p>
+				</section>
+
+				<!-- thanks -->
+				<section>
+					<h2>Thank You!</h2>
+					<p>
+						This presentation is available on GitHub:
+					</p>
+					<p>
+						<a href="https://github.com/michaelstingl/owncloudconf-logs" target="_blank">https://github.com/michaelstingl/owncloudconf-logs</a>.
+					</p>
+					<pre><code data-trim data-noescape>
+						php -S localhost:8080
+				    </code></pre>
+				</section>
+
 			</div>
+
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.js"></script>
 
 		<script>
+
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
+				controls: true,
+				progress: true,
 				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
 
 				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
 				]
 			});
+
 		</script>
+
 	</body>
 </html>
